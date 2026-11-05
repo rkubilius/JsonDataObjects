@@ -6674,6 +6674,7 @@ begin
               tkInteger, tkChar, tkWChar:
                 SetOrdProp(AObject, PropList[Index], Item.IntValue);
 
+              {$IFDEF FPC} tkBool, {$ENDIF}
               tkEnumeration:
                 SetOrdProp(AObject, PropList[Index], Item.IntValue);
 
@@ -6780,6 +6781,7 @@ begin
             tkInteger, tkChar, tkWChar:
               InternAdd(PropName, GetOrdProp(AObject, PropList[Index]));
 
+            {$IFDEF FPC} tkBool, {$ENDIF}
             tkEnumeration:
               begin
                 PropType := PropList[Index].PropType{$IFNDEF FPC}^{$ENDIF};
