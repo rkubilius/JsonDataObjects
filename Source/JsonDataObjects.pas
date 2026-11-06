@@ -43,7 +43,12 @@ unit JsonDataObjects;
 {--------------------------------------------------------------------------------------------------}
 {$IFDEF FPC}
   {$DEFINE SUPPORTS_UTF8STRING}
+  {$IFDEF FPC_HAS_TYPE_EXTENDED}
+    {$DEFINE EXTENDED_OVERLOADS} // Separate overloads for Double and Extended
+  {$ENDIF}
 {$ELSE}
+  {$DEFINE EXTENDED_OVERLOADS} // Separate overloads for Double and Extended
+
   {$IFDEF VER200}
     // Delphi 2009's ErrorInsight parser uses the CompilerVersion's memory address instead of 20.0, failing all the
     // IF CompilerVersion compiler directives
@@ -529,10 +534,10 @@ type
     //class operator Implicit(const Value: TJsonDataValueHelper): UInt64; overload;  conflicts with Int64 operator
     class operator Implicit(const Value: Double): TJsonDataValueHelper; overload;
     class operator Implicit(const Value: TJsonDataValueHelper): Double; overload;
-    {$IFNDEF FPC}
+    {$IFDEF EXTENDED_OVERLOADS}
     class operator Implicit(const Value: Extended): TJsonDataValueHelper; overload;
     class operator Implicit(const Value: TJsonDataValueHelper): Extended; overload;
-    {$ENDIF ~FPC}
+    {$ENDIF EXTENDED_OVERLOADS}
     class operator Implicit(const Value: TDateTime): TJsonDataValueHelper; overload;
     class operator Implicit(const Value: TJsonDataValueHelper): TDateTime; overload;
     class operator Implicit(const Value: Boolean): TJsonDataValueHelper; overload;
@@ -9643,7 +9648,7 @@ begin
     end;
 end;
 
-{$IFNDEF FPC}
+{$IFDEF EXTENDED_OVERLOADS}
 class operator TJsonDataValueHelper.Implicit(const Value: Extended): TJsonDataValueHelper;  // same as double
 begin
   Result.InternClear(iscNone);
@@ -9693,7 +9698,7 @@ begin
       Result := 0;
     end;
 end;
-{$ENDIF ~FPC}
+{$ENDIF EXTENDED_OVERLOADS}
 
 class operator TJsonDataValueHelper.Implicit(const Value: TDateTime): TJsonDataValueHelper;
 begin
