@@ -1368,26 +1368,10 @@ begin
 end;
 
 function UtcDateTimeToLocalDateTime(UtcDateTime: TDateTime): TDateTime;
-{$IFDEF MSWINDOWS}
-var
-  UtcTime, LocalTime: TSystemTime;
 begin
-  DateTimeToSystemTime(UtcDateTime, UtcTime);
-  if SystemTimeToTzSpecificLocalTime(nil, UtcTime, LocalTime) then
-    Result := SystemTimeToDateTime(LocalTime)
-  else
-    Result := UtcDateTime;
+  Result := TJsonBaseObject.JSONToDateTime(
+    TJsonBaseObject.UtcDateTimeToJSON(UtcDateTime));
 end;
-{$ELSE}
-begin
-  {$IFDEF FPC}
-  Result := UniversalTimeToLocal(UtcDateTime);
-  {$ELSE}
-  Result := TTimeZone.Local.ToLocalTime(UtcDateTime);
-  {$ENDIF}
-end;
-{$ENDIF MSWINDOWS}
-
 
 procedure TestTJsonBaseObject.TestDateTimeToJSON;
 var
@@ -1429,6 +1413,12 @@ begin
     S := TJsonBaseObject.DateTimeToJSON(ExpectDt, True);
     Dt := TJsonBaseObject.JSONToDateTime(S);
     CheckEquals(ExpectDt, Dt, 'expected datetime: ' + DateTimeToStr(ExpectDt) + ', returned: ' + DateTimeToStr(Dt));
+
+    // Parse an explicit offset without converting UTC to local time.
+    // 06:04:02.001+01:00 represents 05:04:02.001 UTC.
+    S := '2014-01-01T06:04:02.001+01:00';
+    Dt := TJsonBaseObject.JSONToDateTime(S, False);
+    CheckEquals(ExpectDt, Dt, 'expected UTC datetime: ' + DateTimeToStr(ExpectDt) + ', returned: ' + DateTimeToStr(Dt));
 
   ExpectDt := EncodeDate(2016, 9, 29);
     S := TJsonBaseObject.DateTimeToJSON(ExpectDt, False);
